@@ -1,0 +1,408 @@
+% \VignetteIndexEntry{BGmix Tutorial}
+% \VignetteKeywords{Expression Analysis}
+% \VignettePackage{BGmix}
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,fullpage} %pstricks
+%\usepackage{graphicx}
+
+\usepackage{hyperref}
+
+%% bibliography
+\usepackage{natbib}
+
+
+\newcommand{\nc}{\newcommand} \nc{\be}{\begin{eqnarray}}
+\nc{\ee}{\end{eqnarray}} \nc{\pr}{\ensuremath{\mathbb{P}}}
+
+\parindent 0in
+
+\begin{document}
+
+\title{\bf BGmix} \author{Alex Lewin$^*$, Natalia Bochkina$^\dag$}
+
+\maketitle
+
+\begin{center}
+  $^*$Centre for Biostatistics, Department of Epidemiology and Public Health,\\
+    Imperial College London\\
+    $^\dag$School of Mathematics, University of Edinburgh\\
+  \url{http://www.bgx.org.uk/alex/}\\
+  {\tt a.m.lewin@imperial.ac.uk}
+\end{center}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overview}
+
+The {\tt BGmix} package implements the models used in \cite{lewin07}
+for finding differential expression for genes in two or more
+samples. When there are two samples, a 3-component mixture is used
+to classify genes as over-expressed, under-expressed and
+non-differentially expressed, and gene variances are modelled
+exchangeably to allow for variability between genes. The model is
+fully Bayesian, estimating the proportion of differentially
+expressed genes and the mixture parameters simultaneously. The model
+can also be run with unstructured priors, for use with multi-class
+data.\\
+
+Several different parametric models are possible. An important part
+of the analysis is to check if the model is a reasonable fit to the
+data, and we do this via predictive checks.\\
+
+The analysis is carried out using Markov Chain Monte Carlo.
+Convergence of the output can be checked using the {\tt coda}
+package available from CRAN. We also provide a function to plot the
+trace of the parameters as part of the {\tt BGmix} package.\\
+
+Two alternatives are provided for assessing error rates. With the
+mixture model, an estimate of the false discovery rate (FDR) based
+on posterior probabilities can be calculated. For unstructured
+priors, a tail posterior probability method (\cite{bochkina07}) can be
+used.\\
+
+The input to the model can be expression data processed by any
+algorithm. We provide a function {\tt readBGX} to read in the output
+from the package {\tt BGX}, which is a fully Bayesian hierarchical
+model for obtaining gene expression measures (\cite{bgx}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Data format}\label{sec:data}
+
+
+Data input to {\tt BGmix} consists of sample mean and sample
+variance for each gene, under each experimental condition. Three R
+objects are required as arguments to the {\tt BGmix} function:
+\begin{itemize} \item {\tt ybar}: a matrix, whose columns correspond
+to experimental conditions and rows correspond to genes. Each column
+contains sample means for all genes under one condition. \item {\tt
+ss}: a matrix, whose columns correspond to experimental conditions
+and rows correspond to genes. Each column contains sample variances
+for all genes under one condition. Sample variances must be the
+unbiased estimates, i.e. divide by no. replicates - 1 (this is the
+default for the standard R {\tt var} function). \item {\tt nreps}: a
+vector containing the number of replicates in each condition.
+\end{itemize}
+
+Note that for a paired design, the data is treated as having only
+one `condition', and {\tt ybar} is then the mean \emph{difference}
+between the two experimental conditions.\\
+
+The data must be transformed so that Normal sampling errors are a
+reasonable assumption (eg. with a log or shifted-log transform), and
+normalised if necessary.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Experimental design}\label{sec:design}
+
+
+The first level of the model can be written as a regression for each
+gene: \be \bar{y}_{g} = X^T.\beta_g + \epsilon_g \ee where
+$\bar{y}_{g}$ is the vector of sample means for different conditions
+and $\beta_g$ is a vector of effect parameters. Different
+parametrisations can be achieved using the `design' matrix $X$. At
+most 1 effect parameter can have a mixture prior. (This will
+generally be the differential expression parameter.) \\
+
+By default, genes have a separate variance parameter for each
+condition ($\sigma^2_{gc}$). However, a more general variance
+structure can be used, for instance each gene can have one variance
+across all conditions ($\sigma^2_{g}$). \\
+
+
+The {\tt BGmix} function takes four arguments relating to the
+parametrisation: \begin{itemize} \item {\tt xx}: design matrix X.
+The dimensions of $X$ must be no. effects x no. conditions. \item
+{\tt jstar}: label of the effect which has the mixture prior. Labels
+start at 0, since this is passed to C++. If all parameters are fixed
+effects, set {\tt jstar} = -1. \item {\tt ntau}: the number of
+variance parameters for each gene. \item {\tt indtau}: label for
+each condition indicating which variance grouping that condition
+belongs to. The length of {\tt indtau} must be the same as the
+number of conditions.
+ \end{itemize}
+
+The defaults for these parameters are those for the
+\textbf{differential expression, unpaired data} case (see below).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Differential expression, unpaired data}
+
+For unpaired data $\beta_{g1}$ is the overall mean for gene $g$ and
+$\beta_{g2}$ is the differential expression parameter. Here $X
+=\left( \begin{array}{cc} 1&1  \\
+  -1/2 & 1/2
+\end{array}\right)$, {\tt jstar} = 1.
+
+Two variance structures are commonly used: for gene variances per
+condition ($\sigma^2_{gc}$), use {\tt ntau} = 2, {\tt indtau} = 0:1.
+For one variance across all conditions ($\sigma^2_{g}$), use {\tt
+ntau} = 1, {\tt indtau} = 0.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Differential expression, paired data}
+
+For paired data there is only one condition and one effect, which is
+the differential expression parameter. Here $X = 1$, {\tt jstar} =
+0, {\tt ntau} = 1, {\tt indtau} = 0.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Multi-class data}
+
+If one fixed effect per condition is required, set $X$ to be the
+identity matrix and {\tt jstar} = -1.
+For gene variances per condition ($\sigma^2_{gc}$), use {\tt ntau} =
+no. conditions, {\tt indtau = 0:(nconds-1)}. For one variance across
+all conditions ($\sigma^2_{g}$), use {\tt ntau} = 1, {\tt indtau} =
+0.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Example: How to run the model}
+
+At a minimum, you must consider the data set and experimental design
+parameters in order to run the model (see Sections \ref{sec:data}
+and \ref{sec:design}). \\
+
+We demonstrate BGmix on a small simulated data set. This consists of
+8 replicates of 1000 genes in 2 experimental conditions. We look for
+differential expression between the two conditions, with an unpaired
+design. \\
+
+First read in the data:
+<<results=hide>>=
+library(BGmix)
+data(ybar,ss)
+@
+
+The default experimental design parameters are those for unpaired
+differential expression, so these can be left out here. The following
+command fits BGmix using a mixture of a point mass at zero for the
+null distribution and a Gamma and a reflected Gamma for the
+alternatives.
+
+<<>>=
+outdir <- BGmix(ybar, ss, nreps=c(8,8),niter=1000,nburn=1000)
+@
+
+The function {\tt BGmix} returns the output directory name.
+The output directory contains several types of file: \begin{itemize}
+\item summary of model options (summary.txt) \item posterior means
+(mean*.txt)
+\item probability of being classified in the null component
+(prob-class.txt)
+\item trace of posterior distribution (trace*.txt)
+ \item predictive p-values (pval*.txt)
+\end{itemize}
+
+
+
+Output data can be read into R with the functions {\tt ccSummary}
+, {\tt ccParams} (this reads in posterior means and classification probabilities),
+{\tt ccTrace} and {\tt ccPred}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Plotting the results}
+
+First read in posterior means:
+
+<<>>=
+params <- ccParams(file=outdir)
+@
+
+The output of {\tt ccParams} is a list of vectors and matrices
+corresponding to the different model parameters. These are easily
+plotted using standard R functions. For an unpaired differential
+expression design some standard plots are included in the package.
+These show smoothing of parameters and classification of genes into
+different mixture components:
+
+<<fig=TRUE>>=
+plotBasic(params,ybar,ss)
+@
+
+The estimated FDR (false discovery rate) can also be plotted:
+
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+fdr <- calcFDR(params)
+plotFDR(fdr)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Predictive model checking}
+
+First read in the predictive p-values:
+
+<<>>=
+pred <- ccPred(file=outdir)
+@
+
+It is a good idea to look at histograms of the predictive p-values for the gene
+variances:
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+hist(pred$pval.ss.mix[,1])
+hist(pred$pval.ss.mix[,2])
+@
+
+For mixture models, there is a specific function to plot histograms
+of predictive p-values corresponding to each of the mixture
+components.
+<<fig=TRUE>>=
+par(mfrow=c(2,3))
+plotPredChecks(pred$pval.ybar.mix2,params$pc,probz=0.8)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Tail posterior probability}
+
+Tail posterior probability is used to find differentially
+expressed genes with unstructured prior for the difference (fixed
+effects). It needs trace and parameters output from BGmix with {\tt jstar = -1}
+(all effects are fixed):
+<<results=hide>>=
+nreps <- c(8,8)
+outdir2 <- BGmix(ybar, ss, nreps=nreps, jstar=-1, niter=1000,nburn=1000)
+params2 <- ccParams(outdir2)
+res2 <-  ccTrace(outdir2)
+@
+and the tail posterior probability is calculated by
+<<>>=
+tpp.res <- TailPP(res2, nreps=nreps, params2, p.cut = 0.7, plots  = F)
+@
+
+Note that in this function the tail posterior probability is
+calculated only for the second contrast, assuming that it is the
+difference between condition 2 and condition 1 for the default
+contrast matrix $X$ (see Section 3.1), or for the first contrast
+in paired data.\\
+
+The returned values are the tail posterior probabilities {\tt tpp},
+estimated False Discovery Rate {\tt FDR} and
+estimated proportion of non-differentially expressed genes {\tt pi0}.
+FDR and {\tt pi0} can also be
+estimated separately:
+<<>>=
+FDR.res <- FDRforTailPP(tpp.res$tpp, a1 = params2$maa[1], a2
+= params2$maa[2], n.rep1=nreps[1], n.rep2=nreps[2], p.cut = 0.8)
+pi0 <- EstimatePi0(tpp.res$tpp, tpp.res$pp0)
+@
+
+The histogram of the tail posterior probabilities with its density
+under the null (no differentially expressed genes) and a graph of FDR can be plotted.
+(These plots can be done in function {\tt TailPP}
+ by setting arguments {\tt plots = TRUE}.)
+<<fig=TRUE>>=
+par(mfrow=c(1,2))
+histTailPP(tpp.res)
+FDRplotTailPP(tpp.res)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Model options}
+
+To run the model with a flat prior on all effects (no mixture prior),
+set {\tt jstar} = -1.
+
+There are three main choices for the mixture prior, as presented in
+\cite{lewin07}. These are controlled by the option {\tt
+move.choice.bz} in {\tt BGmix}:
+
+\begin{itemize} \item Null point mass, alternatives Uniform ({\tt
+move.choice.bz = 1}) \item Null point mass, alternatives Gamma ({\tt
+move.choice.bz = 4}) \item Null small Normal, alternatives Gamma
+({\tt move.choice.bz = 5}) \end{itemize}
+
+There are two alternatives for the prior on the gene variances.
+These are controlled by the option {\tt move.choice.tau} in {\tt
+BGmix}:
+
+\begin{itemize} \item Inverse Gamma ({\tt move.choice.tau = 1})
+\item log Normal ({\tt move.choice.tar = 2}) \end{itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Other functions}
+
+{\tt plotTrace} plots trace plots of model parameters (useful for
+assessing convergence of the MCMC) \\
+
+{\tt plotCompare} produces scatter plot of two variables using the
+same scale for x and y axes\\
+
+{\tt plotMixDensity} plots predictive density for mixture model
+(Note: you must save the trace of the predicted data for this:
+option {\tt trace.pred=1} in {\tt BGmix} and option {\tt q.trace=T}
+in {\tt ccPred}) \\
+
+{\tt TailPP} plots the tail posterior probability (for use with
+unstructured priors on the effect parameters) \\
+
+{\tt readBGX} reads in results from the {\tt BGX} package.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% this bit removes the output directory so not left in package
+<<echo=F>>=
+unlink("run.1", recursive=TRUE)
+unlink("run.2", recursive=TRUE)
+@
+
+
+\section{Acknowledgements}
+
+Thanks to Ernest Turro for invaluable help getting the package to work.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{thebibliography}{99}
+
+ \bibitem[{Bochkina \&
+Richardson(2007)}]{bochkina07} Bochkina, N. and Richardson, S.
+(2007). \newblock Tail posterior probability for inference in
+pairwise and multiclass
+  gene expression data.
+\newblock {\em Biometrics} in press.
+
+ \bibitem[{Hein
+{et~al.}(2005)Hein, Richardson, Causton, Ambler, \&
+  Green}]{bgx}
+Hein, A.-M.~K., Richardson, S., Causton, H.~C., Ambler, G.~K., and
+Green, P.~J.
+  (2005).
+\newblock BGX: a fully Bayesian gene expression index for Affymetrix
+GeneChip
+  data.
+\newblock {\em Biostatistics} {\bf 6(3)}, 349--373.
+
+\bibitem[{Lewin {et~al.}(2007)Lewin, Bochkina, \&
+  Richardson}]{lewin07}
+Lewin, A.~M., Bochkina, N. and Richardson, S.
+  (2007).
+\newblock Fully Bayesian mixture model for differential gene
+expression: simulations and model checks. \newblock {\em submitted}.
+
+\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

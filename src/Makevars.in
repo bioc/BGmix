@@ -1,0 +1,12 @@
+PKG_CPPFLAGS = @BGMIX_CPPFLAGS@
+PKG_LIBS = @LIBS@
+
+MYCXXFLAGS=@BGMIX_CXXFLAGS@
+
+all:	$(SHLIB) after
+
+%.o: %.cpp
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+after:
+	rm -r ../boostIncl 
+

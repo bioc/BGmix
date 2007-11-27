@@ -1,0 +1,12 @@
+PKG_CPPFLAGS = -I ../boostIncl
+PKG_LIBS = -lgsl -lgslcblas -lm 
+
+MYCXXFLAGS= -DUSING_R
+
+all:	$(SHLIB) after
+
+%.o: %.cpp
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(MYCXXFLAGS) -c $< -o $@
+after:
+	rm -r ../boostIncl 
+
