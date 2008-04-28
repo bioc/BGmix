@@ -47,8 +47,6 @@ done
 
 #Link against math library (sets LIBS)
 AC_CHECK_LIB([m],[cos],,[AC_MSG_ERROR([Please install math library])])
-AC_CHECK_LIB([gslcblas],[cblas_dgemm],, [AC_MSG_ERROR([Please install GSL CBLAS library])])
-AC_CHECK_LIB([gsl],[gsl_blas_dgemm],,[AC_MSG_ERROR([Please install GSL library])])
 
 # Checks for Boost libraries.
 #AX_BOOST([1.31.0], BGMIX_CPPFLAGS="$BOOST_CPPFLAGS")

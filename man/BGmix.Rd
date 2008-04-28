@@ -10,7 +10,8 @@ ncol = 2, byrow = T), ntau = NULL, indtau = NULL, jstar = 1, niter =
 10000, nburn = 10000, nthin = 10, seed = 12345, move.choice.bz = 4,
 move.choice.aa = 1, move.choice.lam = 0, move.choice.tau = 1,
 move.choice.eta = 1, trace.out = 1, trace.pred = 0, sig.aa = 0.1,
-tau.eps = 50, datafilename.ybar = NULL, xfilename = NULL, itfilename =
+tau.eps = 50, lambda.up.init=1.5, lambda.down.init=1.5,
+datafilename.ybar = NULL, xfilename = NULL, itfilename =
 NULL, rundir=".")
 }
 \arguments{
@@ -36,7 +37,12 @@ NULL, rundir=".")
   \item{trace.out}{if this is 1, output trace of model parameters, if this is 0, no output.}
   \item{trace.pred}{ if this is 1, output trace of predictive quantities, if this is 0, no output.}
   \item{sig.aa}{ step-size in random walk update for a (hyperparameter for gene variances distribution)}
-  \item{tau.eps}{Value of epsilon used in the small Normal null mixture component.}
+  \item{tau.eps}{Value of epsilon used in the small Normal null mixture
+    component.}
+  \item{lambda.up.init}{init or fixed value of lambda+ (parameter of
+    Gamma mixture component)}
+  \item{lambda.down.init}{init or fixed value of lambda- (parameter of
+    Gamma mixture component)}
   \item{datafilename.ybar}{ character. Name describing the data set (by default this is taken from the name of the ybar argument).}
   \item{xfilename}{ character. Name describing the design matrix.}
   \item{itfilename}{ character. Name describing the indtau parameter.}

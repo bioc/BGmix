@@ -2,9 +2,7 @@
 #include <iostream>
 #include "updates_BGmix.h"
 #include "rand.hh"
-#include <gsl/gsl_sf_erf.h>
-#include <gsl/gsl_sf_gamma.h>
-#include <gsl/gsl_cdf.h>
+#include <Rmath.h>
 #include <valarray>
 
 /////////////////////////////////////////////////////////////////////////
@@ -91,10 +89,16 @@ for(int g=0; g<ngenes; ++g) {
     }
   }
 
-	palloc0 = gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 ) - gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 + 
-								      eta_down*sqrt(dum4) );
-	palloc2 = gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 ) - gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 - 
-								      eta_up*sqrt(dum4) );
+  /////////// replaced gsl with R fns
+    // palloc0 = gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 ) - gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 + 
+    //							      eta_down*sqrt(dum4) );
+    // palloc2 = gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 ) - gsl_sf_erf_Q( sqrt(1.0/dum4)*dum3 - 
+    //								      eta_up*sqrt(dum4) );
+    palloc0 = pnorm( sqrt(1.0/dum4)*dum3 ,0,1,0,0) - 
+      pnorm( sqrt(1.0/dum4)*dum3 + eta_down*sqrt(dum4) ,0,1,0,0);
+    palloc2 = pnorm( sqrt(1.0/dum4)*dum3 ,0,1,0,0) - 
+      pnorm( sqrt(1.0/dum4)*dum3 - eta_up*sqrt(dum4) ,0,1,0,0);
+
 	palloc0 = palloc0 * wtc[0] * sqrt(2.0*3.14159/(dum4)) / eta_down;
 	palloc2 = -palloc2 * wtc[2] * sqrt(2.0*3.14159/(dum4)) / eta_up;
 	palloc1 = wtc[1] * exp(-pow(dum3,2)/(dum4*2));
@@ -114,18 +118,25 @@ for(int g=0; g<ngenes; ++g) {
 		nalloc[1]++;
 	}
 
+  /////////// replaced gsl with R fns
 	if(zg[g]==1) beta[g][jstar] = 0;
 	else if(zg[g]==0){
-		u_down = gsl_cdf_gaussian_P( -eta_down-dum3/dum4 , sqrt(1.0/(dum4)) );
-		u_up = gsl_cdf_gaussian_P( -dum3/dum4 , sqrt(1.0/(dum4)) );
-		uu = rand.Uniform(u_down,u_up);
-		beta[g][jstar] = gsl_cdf_gaussian_Pinv(uu, sqrt(1.0/(dum4)) ) + dum3/dum4; 
+	  // u_down = gsl_cdf_gaussian_P( -eta_down-dum3/dum4 , sqrt(1.0/(dum4)) );
+	  // u_up = gsl_cdf_gaussian_P( -dum3/dum4 , sqrt(1.0/(dum4)) );
+	  u_down = pnorm( -eta_down-dum3/dum4 , 0, sqrt(1.0/(dum4)) ,1,0);
+	  u_up = pnorm( -dum3/dum4 , 0, sqrt(1.0/(dum4)) ,1,0);
+	  uu = rand.Uniform(u_down,u_up);
+	  // beta[g][jstar] = gsl_cdf_gaussian_Pinv(uu, sqrt(1.0/(dum4)) ) + dum3/dum4; 
+	  beta[g][jstar] = qnorm(uu, 0, sqrt(1.0/(dum4)) ,1,0) + dum3/dum4; 
 	}
 	else{
-		u_down = gsl_cdf_gaussian_P( -dum3/dum4 , sqrt(1.0/(dum4)) );
-		u_up = gsl_cdf_gaussian_P( eta_up-dum3/dum4 , sqrt(1.0/(dum4)) );
-		uu = rand.Uniform(u_down,u_up);
-		beta[g][jstar] = gsl_cdf_gaussian_Pinv(uu, sqrt(1.0/(dum4)) ) + dum3/dum4; 
+	  // u_down = gsl_cdf_gaussian_P( -dum3/dum4 , sqrt(1.0/(dum4)) );
+	  // u_up = gsl_cdf_gaussian_P( eta_up-dum3/dum4 , sqrt(1.0/(dum4)) );
+	  u_down = pnorm( -dum3/dum4 , 0, sqrt(1.0/(dum4)) ,1,0);
+	  u_up = pnorm( eta_up-dum3/dum4 , 0, sqrt(1.0/(dum4)) ,1,0);
+	  uu = rand.Uniform(u_down,u_up);
+	  // beta[g][jstar] = gsl_cdf_gaussian_Pinv(uu, sqrt(1.0/(dum4)) ) + dum3/dum4; 
+	  beta[g][jstar] = qnorm(uu, 0, sqrt(1.0/(dum4)) ,1,0) + dum3/dum4; 
 	}
 }
 
@@ -256,8 +267,11 @@ for(int g=0; g<ngenes; ++g) {
   }
 
 	phi = exp(-0.5*dum4*pow(dum3/dum4,2)) * sqrt(dum4/6.28318);
-	phigam_up = phi*gsl_sf_gamma(lambda_up);
-	phigam_down = phi*gsl_sf_gamma(lambda_down);
+  /////////// replaced gsl with R fns
+	  // phigam_up = phi*gsl_sf_gamma(lambda_up);
+	  // phigam_down = phi*gsl_sf_gamma(lambda_down);
+	phigam_up = phi*gammafn(lambda_up);
+	phigam_down = phi*gammafn(lambda_down);
 	ratiogam = phigam_up/phigam_down;
 
 	uu = rand.Uniform();
@@ -359,8 +373,11 @@ for(int g=0; g<ngenes; ++g) {
 
        	beta1try = rand.Normal( dum3/dum4 , sqrt(1.0/(dum4))  );
 
-	gam_up = gsl_sf_gamma(lambda_up);
-	gam_down = gsl_sf_gamma(lambda_down);
+  /////////// replaced gsl with R fns
+	  // gam_up = gsl_sf_gamma(lambda_up);
+	  // gam_down = gsl_sf_gamma(lambda_down);
+	gam_up = gammafn(lambda_up);
+	gam_down = gammafn(lambda_down);
 	ratiogam = gam_up/gam_down;
 
 	uu = rand.Uniform();
@@ -496,8 +513,11 @@ void update_lambda(double &lambda_up, double &lambda_down, double &eta_up, doubl
       if(zg[g]==0) lplam0[j] += (lam_new[j]-1)*log(-beta[g][jstar]);
       if(zg[g]==2) lplam2[j] += (lam_new[j]-1)*log(beta[g][jstar]);
     }
-    lplam0[j] += nalloc[0]*( lam_new[j]*log(eta_down) - log(gsl_sf_gamma(lam_new[j])) );
-    lplam2[j] += nalloc[2]*( lam_new[j]*log(eta_up) - log(gsl_sf_gamma(lam_new[j])) );
+  /////////// replaced gsl with R fns
+      // lplam0[j] += nalloc[0]*( lam_new[j]*log(eta_down) - log(gsl_sf_gamma(lam_new[j])) );
+      // lplam2[j] += nalloc[2]*( lam_new[j]*log(eta_up) - log(gsl_sf_gamma(lam_new[j])) );
+    lplam0[j] += nalloc[0]*( lam_new[j]*log(eta_down) - log(gammafn(lam_new[j])) );
+    lplam2[j] += nalloc[2]*( lam_new[j]*log(eta_up) - log(gammafn(lam_new[j])) );
     psum0 += exp(lplam0[j]);
     psum2 += exp(lplam2[j]);
   }
@@ -753,7 +773,12 @@ for(int t=0; t<ntau; ++t) {
 
 	aa_try = rand.Normal( aa[t],sig_aa );
 
-	log_acc_prob = (gg-1)*(log(aa_try)-log(aa[t])) + ngenes*( log(gsl_sf_gamma(aa[t])) - log(gsl_sf_gamma(aa_try)) )
+  /////////// replaced gsl with R fns
+	  // log_acc_prob = (gg-1)*(log(aa_try)-log(aa[t])) + 
+	  // ngenes*( log(gsl_sf_gamma(aa[t])) - log(gsl_sf_gamma(aa_try)) )
+          //     + (aa_try-aa[t])*(ngenes*logbtau-hh);
+	log_acc_prob = (gg-1)*(log(aa_try)-log(aa[t])) + 
+	  ngenes*( log(gammafn(aa[t])) - log(gammafn(aa_try)) )
                + (aa_try-aa[t])*(ngenes*logbtau-hh);
 	
 	uu = rand.Uniform();

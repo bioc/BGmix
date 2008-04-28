@@ -20,7 +20,8 @@ function(ybar, ss, nreps, neffects=2, xx=matrix(c(1,1,-0.5,0.5),ncol=2,byrow=T),
          ntau=NULL, indtau=NULL, jstar=1, niter=10000, nburn=10000, nthin=10,  
 	seed=12345, move.choice.bz=4, move.choice.aa=1, move.choice.lam=0,
 	    move.choice.tau=1, move.choice.eta=1, trace.out=1, trace.pred=0,
-	 sig.aa=0.1, tau.eps=50,datafilename.ybar=NULL, xfilename=NULL,
+	 sig.aa=0.1, tau.eps=50, lambda.up.init=1.5, lambda.down.init=1.5,
+         datafilename.ybar=NULL, xfilename=NULL,
          itfilename=NULL, rundir="."){
 
 ############ variables which are set automatically from others
@@ -42,7 +43,7 @@ if(is.null(indtau)) indtau <- 0:(nconds-1)
 ############### variables which I've taken out to make the list shorter
 
 aa.init=0.8; gg=0.01; hh=0.01; tau.var=0.001; eta.up.init=3; eta.down.init=3 
-lambda.up.init=1.5; lambda.down.init=1.5; aa.eta=1; bb.eta=1
+aa.eta=1; bb.eta=1
 lam1=0.2; lam2=5; nlam=25; nu1=1; nu2=1; nu0=1
 zg.init=0; beta.init=0.1; tau.init=1.1; bb.init=0.2
 
