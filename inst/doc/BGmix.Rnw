@@ -69,6 +69,21 @@ model for obtaining gene expression measures (\cite{bgx}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section{Installation}\label{sec:install}
+
+Installation is as standard for linux, eg. {\tt install.packages("BGmix_**.tar.gz"},
+or if you download the zip file first you can use {\tt R CMD install BGmix_**.tar.gz}
+or {\tt install.packages("BGmix_**.tar.gz",repos=NULL}.
+
+Currently the package relies on the GNU libraries GSL and GSL CBLAS
+(these are fairly standard libraries).
+They must be installed on your system for BGmix to work. BGmix should find the
+libraries if they are installed. If they are not, you can download them from here:
+http://www.gnu.org/software/gsl/.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \section{Data format}\label{sec:data}
 
