@@ -16,7 +16,7 @@
 
 
 # Initialise.
-AC_INIT([BGmix], [0.9.0], [a.m.lewin@ic.ac.uk])
+AC_INIT([BGmix], [1.1.0], [a.m.lewin@ic.ac.uk])
 AC_CONFIG_SRCDIR([src/BGmix_main.cpp])
 #AC_CONFIG_HEADERS([src/config.h])
 
