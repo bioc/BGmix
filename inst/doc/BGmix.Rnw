@@ -3,7 +3,7 @@
 % \VignettePackage{BGmix}
 \documentclass[11pt]{article}
 
-\usepackage{amsmath,fullpage} %pstricks
+\usepackage{amsmath,fullpage}
 %\usepackage{graphicx}
 
 \usepackage{hyperref}
