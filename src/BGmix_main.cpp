@@ -349,7 +349,7 @@ std::string filename;
 //stringcpy(*dirname,run_dir);
 
   // Create output file and directory
-  char *tmpstr = new char[strlen(*basepath)+4];
+  char *tmpstr = new char[strlen(*basepath)+5];
   strcpy(tmpstr, *basepath); // Prepend basepath
   strcat(tmpstr,"/run");
   std::string run_dir = rundir(tmpstr);
