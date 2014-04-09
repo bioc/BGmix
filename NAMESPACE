@@ -1,5 +1,6 @@
 useDynLib(BGmix)
 
+import(KernSmooth)
 export(BGmix,ccSummary,ccTrace,ccParams,ccPred,
        plotCompare,plotBasic,plotTrace,plotFDR,plotPredChecks,plotMixDensity,
        calcFDR,TailPP,histTailPP,FDRforTailPP,FDRplotTailPP,

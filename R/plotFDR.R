@@ -40,7 +40,7 @@ abline(v=res$pcut[np1],h=res$fdr.est[np1],col="red")
 abline(v=res$pcut[np2],h=res$fdr.est[np2],col="blue")
 xx <- res$pcut[1] + 0.1*(res$pcut[length(res$pcut)]-res$pcut[1])
 yy <- ylim[1] + 0.9*(ylim[2]-ylim[1])
-legend(xx,yy,leg=c("FDR=5%","FDR=10%"),col=c("red","blue"),lty=c(1,1),bg="white")
+legend(xx,yy,legend=c("FDR=5%","FDR=10%"),col=c("red","blue"),lty=c(1,1),bg="white")
 
 if(q.plotfnr) plot(res$pcut,res$fnr.est,ylim=ylim,type="l",
      xlab="Cut-off on posterior probability",ylab="Estimated FNR",...)
@@ -64,7 +64,7 @@ abline(v=res$npos[np1],h=res$fdr.est[np1],col="red")
 abline(v=res$npos[np2],h=res$fdr.est[np2],col="blue")
 xx <- res$npos[1] + 0.1*(res$npos[length(res$npos)]-res$npos[1])
 yy <- ylim[1] + 0.9*(ylim[2]-ylim[1])
-legend(xx,yy,leg=c("FDR=5%","FDR=10%"),col=c("red","blue"),lty=c(1,1),bg="white")
+legend(xx,yy,legend=c("FDR=5%","FDR=10%"),col=c("red","blue"),lty=c(1,1),bg="white")
 
 if(q.plotfnr) plot(res$npos,res$fnr.est,ylim=ylim,type="l",
      xlab="No. DE genes",ylab="Estimated FNR",...)

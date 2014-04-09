@@ -41,7 +41,6 @@
 FDRforTailPP <- function(tpp, a1, a2=NULL, n.rep1, n.rep2=NULL, prec=0.05, p.cut = 0.7, N = 10000, pp0=NULL, plot = T)
 {
 
- library(KernSmooth)
  if(is.null(pp0))
  {
   if(is.null(n.rep2)) A = a1 + (n.rep1-1)/2 else A = max(a1 + (n.rep1-1)/2,  a2 + (n.rep2-1)/2) # or min: to make FDR est. more conservative

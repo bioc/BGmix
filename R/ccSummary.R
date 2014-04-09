@@ -22,104 +22,104 @@ file <- file.path(filedir,"summary.txt")
 summ <- readLines(file)
 
 
-i <- agrep("genes",summ,max=0)
+i <- agrep("genes",summ,max.distance=0)
 ngenes <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(ngenes))
 
-i <- agrep("conds",summ,max=0)
+i <- agrep("conds",summ,max.distance=0)
 nconds <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(nconds))
 
-i <- agrep("effects",summ,max=0)
+i <- agrep("effects",summ,max.distance=0)
 neffects <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(neffects))
 
-i <- agrep("mix comps",summ,max=0)
+i <- agrep("mix comps",summ,max.distance=0)
 ncomps <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(ncomps))
 
-i <- agrep("variance",summ,max=0)
+i <- agrep("variance",summ,max.distance=0)
 ntau <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(ntau))
 
-i <- agrep("mix prior",summ,max=0)
+i <- agrep("mix prior",summ,max.distance=0)
 jstar <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(jstar))
 
 
 
-i <- agrep("niter",summ,max=0)
+i <- agrep("niter",summ,max.distance=0)
 niter <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(niter))
 
-i <- agrep("nburn",summ,max=0)
+i <- agrep("nburn",summ,max.distance=0)
 nburn <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(nburn))
 
-i <- agrep("nthin",summ,max=0)
+i <- agrep("nthin",summ,max.distance=0)
 nthin <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(nthin))
 
-i <- agrep("seed",summ,max=0)
+i <- agrep("seed",summ,max.distance=0)
 seed <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(seed))
 
-i <- agrep("move",summ,max=0)
+i <- agrep("move",summ,max.distance=0)
 move.choice.bz <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(move.choice.bz))
 
-i <- agrep("fullBayes",summ,max=0)
+i <- agrep("fullBayes",summ,max.distance=0)
 move.choice.cut <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(move.choice.cut))
 
-i <- agrep("aa updated",summ,max=0)
+i <- agrep("aa updated",summ,max.distance=0)
 move.choice.aa <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(move.choice.aa))
 
-i <- agrep("eta updated",summ,max=0)
+i <- agrep("eta updated",summ,max.distance=0)
 #print(i)
 #print(length(strsplit(summ[i]," ")))
 if(length(strsplit(summ[i]," "))>0) move.choice.eta <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 else move.choice.eta <- NULL
 #print(as.numeric(move.choice.eta))
 
-i <- agrep("lambdas updated",summ,max=0)
+i <- agrep("lambdas updated",summ,max.distance=0)
 move.choice.lam <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(move.choice.lam))
 
-i <- agrep("tau's",summ,max=0)
+i <- agrep("tau's",summ,max.distance=0)
 #print(i)
 #print(length(strsplit(summ[i]," ")))
 if(length(strsplit(summ[i]," "))>0) move.choice.tau <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 else move.choice.tau <- NULL
 #print(as.numeric(move.choice.tau))
 
-i <- agrep("t-dist",summ,max=0)
+i <- agrep("t-dist",summ,max.distance=0)
 like.choice <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(like.choice))
 
-i <- agrep("(params)",summ,max=0)
+i <- agrep("(params)",summ,max.distance=0)
 trace.out <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(trace.out))
 
-i <- agrep("(predictive)",summ,max=0)
+i <- agrep("(predictive)",summ,max.distance=0)
 trace.pred <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(trace.pred))
 
 
-i <- agrep("eta_up",summ,max=0)
+i <- agrep("eta_up",summ,max.distance=0)
 eta.up.init <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(eta.up.init))
 
-i <- agrep("eta_down",summ,max=0)
+i <- agrep("eta_down",summ,max.distance=0)
 eta.down.init <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(eta.down.init))
 
-i <- agrep("lambda+ for",summ,max=0)
+i <- agrep("lambda+ for",summ,max.distance=0)
 lambda.up.init <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(lambda.up.init))
 
-i <- agrep("lambda- for",summ,max=0)
+i <- agrep("lambda- for",summ,max.distance=0)
 lambda.down.init <- as.numeric(strsplit(summ[i]," ")[[1]][1])
 #print(as.numeric(lambda.down.init))
 
