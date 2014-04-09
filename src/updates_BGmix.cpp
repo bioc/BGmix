@@ -960,7 +960,10 @@ if(ybar_pred4[g][1]-ybar_pred4[g][0] >= ybar[g][1]-ybar[g][0]) pval_mix3_ybar[g]
 /// partial p-vals for diff
   taunew = nreps[0]*nreps[1]*tau[g][indtau[0]]*tau[g][indtau[1]] / 
     (nreps[0]*tau[g][indtau[0]] + nreps[1]*tau[g][indtau[1]]);
-  den_ybar = sqrt(taunew)*exp(-0.5*taunew*pow(ybar[g][1]-ybar[g][0]-beta[g][jstar],2));
+  double beta_g = 0;            // avoid invalid read when jstar == -1
+  if (jstar >= 0)
+      beta_g = beta[g][jstar];
+  den_ybar = sqrt(taunew)*exp(-0.5*taunew*pow(ybar[g][1]-ybar[g][0]-beta_g,2));
   norm_ybar[g] += 1.0/den_ybar;
   if(ybar_pred1[g][1]-ybar_pred1[g][0] > ybar[g][1]-ybar[g][0]) pval_partial_ybar[g] += 1.0/den_ybar;
 
