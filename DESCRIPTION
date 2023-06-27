@@ -1,7 +1,7 @@
 Package: BGmix
 Type: Package
 Title: Bayesian models for differential gene expression
-Version: 1.61.0
+Version: 1.61.1
 Author: Alex Lewin, Natalia Bochkina
 Maintainer: Alex Lewin <a.m.lewin@imperial.ac.uk>
 Description: Fully Bayesian mixture models for differential gene
@@ -9,3 +9,4 @@ Description: Fully Bayesian mixture models for differential gene
 License: GPL-2
 Depends: R (>= 2.3.1), KernSmooth
 biocViews: Microarray, DifferentialExpression, MultipleComparison
+PackageStatus: Deprecated
